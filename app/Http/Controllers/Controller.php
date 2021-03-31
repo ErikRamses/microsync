@@ -14,7 +14,6 @@ class Controller extends BaseController
     use AuthorizesRequests;
     use DispatchesJobs;
     use ValidatesRequests;
-
     use Helpers;
 
     public function transformResponse($data, $transformer, $optional = [])

@@ -10,17 +10,49 @@ use Dingo\Api\Routing\Router;
 $api = app(Router::class);
 
 $api->version('v1', function (Router $api) {
-    $api->get('file-aportacion-efectivo', 'App\Api\V1\Controllers\ContractController@getAportacionEfectivo');
-    $api->get('file-aportacion-especie', 'App\Api\V1\Controllers\ContractController@getAportacionEspecie');
-    $api->get('file-gasto-efectivo', 'App\Api\V1\Controllers\ContractController@getGastoEfectivo');
-    $api->get('file-contrato-aportacion', 'App\Api\V1\Controllers\ContractController@getContratoAportacion');
-    $api->get('file-aportacion-militantes', 'App\Api\V1\Controllers\ContractController@getAportacionMilitantes');
-    $api->get('file-aportacion-militantes-precam', 'App\Api\V1\Controllers\ContractController@getAportacionMilitantesPrecam');
-    $api->get('file-aportacion-militantes-coa', 'App\Api\V1\Controllers\ContractController@getAportacionMilitantesCoa');
-    $api->get('file-aportacion-simpatizantes', 'App\Api\V1\Controllers\ContractController@getAportacionSimpatizantes');
-    $api->get('file-aportacion-simpatizantes-coa', 'App\Api\V1\Controllers\ContractController@getAportacionSimpatizantesCoa');
-    $api->get('file-simpatizantes-efect-especie', 'App\Api\V1\Controllers\ContractController@getAportacionSimEfecEspecie');
-    $api->get('file-formulario-registro', 'App\Api\V1\Controllers\ContractController@getFormularioRegistro');
+    $api->group(['prefix' => 'auth', 'namespace' => 'App\Api\V1\Controllers'], function (Router $api) {
+        $api->post('signup', 'SignUpController@signUp');
+        $api->post('login', 'LoginController@login');
+
+        // $api->post('recovery', 'ForgotPasswordController@sendResetEmail');
+        // $api->post('reset', 'ResetPasswordController@resetPassword');
+
+        $api->post('logout', 'LogoutController@logout');
+        $api->post('refresh', 'RefreshController@refresh');
+        $api->get('me', 'UserController@me');
+    });
+
+    $api->group(['prefix' => 'webhooks', 'namespace' => 'App\Api\V1\Controllers'], function (Router $api) {
+        $api->post('shopify/shop/{id}', 'WebhookController@webhook');
+    });
+
+    $api->group(['middleware' => ['jwt.auth', 'bindings'], 'namespace' => 'App\Api\V1\Controllers'], function (Router $api) {
+        $api->get('protected', function () {
+            return response()->json([
+                'message' => 'Access to protected resources granted! You are seeing this text as you provided the token correctly.',
+            ]);
+        });
+
+        $api->get('refresh', [
+            'middleware' => 'jwt.refresh',
+            function () {
+                return response()->json([
+                    'message' => 'By accessing this endpoint, you can refresh your access token at each request. Check out this response headers!',
+                ]);
+            },
+        ]);
+
+        $api->get('users', 'UserController@index');
+        $api->get('users/{id}', 'UserController@show');
+        $api->post('users/', 'UserController@store');
+        $api->put('users/{id}', 'UserController@update');
+        $api->delete('users/{id}', 'UserController@destroy');
+        $api->get('roles/users', 'UserController@roles');
+
+        // Shops events
+        $api->post('shop', 'ShopController@storeShop');
+        $api->delete('shop/{id}', 'ShopController@destroy');
+    });
 
     $api->get('hello', function () {
         return response()->json([

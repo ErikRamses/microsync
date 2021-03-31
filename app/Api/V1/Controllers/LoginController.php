@@ -4,7 +4,6 @@ namespace App\Api\V1\Controllers;
 
 use App\Api\V1\Requests\LoginRequest;
 use App\Http\Controllers\Controller;
-use App\Models\Permission;
 use Auth;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -36,7 +35,6 @@ class LoginController extends Controller
         }
 
         $role_id = Auth::guard()->user()->hasRoles()->pluck('id');
-        $permissions = Permission::join('permission_has_role', 'permissions.id', 'permission_has_role.permission_id')->where('permission_has_role.role_id', $role_id)->get();
 
         return response()
             ->json([
@@ -44,7 +42,6 @@ class LoginController extends Controller
                 'token' => $token,
                 'user' => Auth::guard()->user(),
                 'role' => Auth::guard()->user()->hasRoles()->get(),
-                'permissions' => $permissions,
                 'expires_in' => Auth::guard()->factory()->getTTL() * 120,
             ]);
     }

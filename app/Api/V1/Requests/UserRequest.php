@@ -12,11 +12,9 @@ class UserRequest extends FormRequest
     {
         switch ($this->method()) {
             case 'POST':
-
                 return Config::get('boilerplate.user_save.validation_rules');
 
             case 'PUT':
-
                 $validations = [
                     'name' => 'sometimes|required|string|max:255',
                     'username' => [
@@ -43,7 +41,6 @@ class UserRequest extends FormRequest
             case 'PATCH':
             case 'GET':
             case 'DELETE':
-
                 return [];
 
             default:break;
