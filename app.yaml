@@ -1,0 +1,39 @@
+runtime: php72
+
+handlers: #Aqui le decimos a AE como manejara las rutas
+- url: /css
+  static_dir: public/css
+- url: /json
+  static_dir: public/json
+- url: /fav
+  static_dir: public/fav
+- url: /js
+  static_dir: public/js
+- url: /img
+  static_dir: public/img
+- url: /fonts
+  static_dir: public/fonts
+- url: /.*
+  script: auto
+  secure: always
+  redirect_http_response_code: 301 
+- url: /.*
+  static_dir: /
+
+runtime_config:
+ document_root: public
+
+env_variables:
+ APP_ENV: production
+ APP_KEY: base64:H9BxQvFo+TNPaFSuKd4/mqobVASRIFK6Fw6bnTGKw1I=
+ APP_STORAGE: /tmp
+ STORAGE_DIR: /tmp
+ VIEW_COMPILED_PATH: /tmp
+ APP_DEBUG: TRUE
+ CACHE_DRIVER: database
+ SESSION_DRIVER: database
+ DB_CONNECTION: mysql
+ DB_DATABASE: documentator
+ DB_USERNAME: laravel
+ DB_PASSWORD: Diario930202
+ DB_SOCKET: "/cloudsql/control-finanzas-298116:us-central1:documentator"
