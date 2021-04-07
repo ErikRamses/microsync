@@ -24,6 +24,8 @@ $api->version('v1', function (Router $api) {
 
     $api->group(['prefix' => 'webhooks', 'namespace' => 'App\Api\V1\Controllers'], function (Router $api) {
         $api->post('shopify/shop/{id}', 'WebhookController@webhook');
+        $api->get('shopify/get-token', 'WebhookController@getToken');
+        $api->get('shopify/install', 'WebhookController@installTest');
     });
 
     $api->group(['middleware' => ['jwt.auth', 'bindings'], 'namespace' => 'App\Api\V1\Controllers'], function (Router $api) {
@@ -50,8 +52,12 @@ $api->version('v1', function (Router $api) {
         $api->get('roles/users', 'UserController@roles');
 
         // Shops events
-        $api->post('shop', 'ShopController@storeShop');
-        $api->delete('shop/{id}', 'ShopController@destroy');
+        $api->post('install', 'ShopController@install');
+        $api->get('list-webhooks/{id}', 'ShopController@listWebhooks');
+        $api->post('create-webhook/{id}', 'ShopController@createWebhook');
+        $api->put('update-webhook/{id}', 'ShopController@updateWebhook');
+        $api->delete('delete-webhook/{id}', 'ShopController@deleteWebhook');
+        $api->put('default-webhooks/{id}', 'ShopController@defaultWebhooks');
     });
 
     $api->get('hello', function () {
