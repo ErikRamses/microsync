@@ -17,7 +17,8 @@ class CreateShopsTable extends Migration
             $table->increments('id');
             $table->string('hostname')->unique();
             $table->string('apikey')->unique();
-            $table->string('password');
+            $table->string('token')->nullable();
+            $table->string('nonce')->nullable();
             $table->string('secret_key')->nullable();
             $table->string('email')->nullable();
             $table->string('patform')->default('shopify');
