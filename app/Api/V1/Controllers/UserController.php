@@ -11,13 +11,9 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\User;
 use Auth;
-use Carbon\Carbon;
-use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -92,111 +88,6 @@ class UserController extends Controller
             $response = $this->transformResponse($users, new UserTransformer(), $options);
 
             return $response;
-        }
-    }
-
-    /**
-     * Display a report of the resource.
-     *
-     * @return array
-     */
-    public function report(Request $request)
-    {
-        $pathTmp = sys_get_temp_dir();
-        $built_path = env('AWS_BUILD_FOLDER', 'documentator/').'excel/reports/';
-        $destinationPath = 'excel/reports/';
-        if (! $request->input('length')) {
-            $users = User::all();
-        } else {
-            $columns = [
-                'id',
-                'name',
-                'username',
-                'email',
-            ];
-
-            $length = $request->input('length');
-            $draw = $request->input('draw');
-            $column = $request->input('column');
-            $dir = $request->input('dir');
-            $searchValue = $request->input('search');
-            $items = User::all();
-
-            if ('asc' == $dir) {
-                $items = $items->sortBy($columns[$column]);
-            } else {
-                $items = $items->sortByDesc($columns[$column]);
-            }
-
-            if ('' != $searchValue) {
-                $items = $items->filter(function ($item) use ($searchValue) {
-                    return stristr($item->name, $searchValue) || stristr($item->email, $searchValue);
-                });
-            }
-
-            if ($request->input('name')) {
-                $name = $request->input('name');
-                $items = $items->filter(function ($item) use ($name) {
-                    return stristr($item->name, $name);
-                });
-            }
-
-            if ($request->input('username')) {
-                $username = $request->input('username');
-                $items = $items->filter(function ($item) use ($username) {
-                    return stristr($item->username, $username);
-                });
-            }
-
-            if ($request->input('email')) {
-                $items = $items->where('email', $request->input('email'));
-            }
-
-            $users = $items;
-        }
-
-        $excel = Excel::create('Usuarios', function ($excel) use ($users) {
-            $excel->setTitle('Reporte de Usuarios');
-            $excel->setCreator('Trinitas')->setCompany('Trinitas');
-            $excel->setDescription('Lista de Usuarios');
-            $excel->sheet('Usuarios', function ($sheet) use ($users) {
-                foreach ($users as $user) {
-                    $sheet->appendRow([$user->id, $user->name, $user->username, $user->email]);
-                }
-                $sheet->prependRow(1, ['Id',
-                'Nombre',
-                'Usuario',
-                'Correo', ]);
-                $sheet->row(1, function ($row) {
-                    $row->setFontColor('#FFFFFF');
-                    $row->setBackground('#0EBFE9');
-                });
-            });
-        })->store('xlsx', false, true);
-
-        if (file_exists($excel['full'])) {
-            $contentType = 'Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-            header('Expires: Mon, 1 Apr 1974 05:00:00 GMT');
-            header('Last-Modified: '.gmdate('D,d M YH:i:s').' GMT');
-            header('Cache-Control: no-cache, must-revalidate');
-            header('Pragma: no-cache');
-            header($contentType);
-            header('Content-Disposition: attachment; filename=reporte_usuarios.xlsx');
-            $s3 = Storage::disk('s3');
-            $date = Carbon::now('America/Monterrey');
-            $date = date_format($date, 'Y-m-d');
-
-            if (! $s3->directories($built_path)) {
-                $s3->makeDirectory($built_path);
-            }
-
-            $file_name = 'reporte_usuarios'.'-'.$date.'.xlsx';
-            $file = new File($excel['full']);
-            $s3->putFileAs($built_path, $file, $file_name, 'public');
-
-            return response()->json(['url' => env('AWS_URL', 'https://dev-concentrico.s3.us-west-2.amazonaws.com/documentator/').$destinationPath.$file_name]);
-        } else {
-            return null;
         }
     }
 
