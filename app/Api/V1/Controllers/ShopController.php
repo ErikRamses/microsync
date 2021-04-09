@@ -97,7 +97,9 @@ class ShopController extends Controller
             'base_uri' => $base_url,
         ]);
 
-        foreach ($shop_default->webhooks as $webhook) {
+        $webhooks = Webhook::where('shop_id', 1)->get();
+
+        foreach ($webhooks as $webhook) {
             $topic = $webhook->topic;
             $event = str_replace('/', '-', $topic);
             $webhook_url = env('APP_PUBLIC_URL', '/').'/api/webhooks/shopify/shop/'.$id.'?event='.$event;

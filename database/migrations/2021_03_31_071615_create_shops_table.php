@@ -16,7 +16,7 @@ class CreateShopsTable extends Migration
         Schema::create('shops', function (Blueprint $table) {
             $table->increments('id');
             $table->string('hostname')->unique();
-            $table->string('apikey')->unique();
+            $table->string('apikey')->nullable();
             $table->string('token')->nullable();
             $table->string('nonce')->nullable();
             $table->string('secret_key')->nullable();
