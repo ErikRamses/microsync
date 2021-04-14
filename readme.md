@@ -33,14 +33,17 @@ git clone <repo>
 cat .env.example > .env
 ```
 
-3 - Copy .env.example file to .env:
+3 - Create storage folder and this folders inside:
 ```
-Change Database and custom configuration
+	-framework
+		-cache
+		-views
+		-sessions
 ```
 
-4 - Update composer:
+4 - Update composer using php7.2:
 ```bash
-composer update
+composer update --prefer-source
 ```
 
 5 - Generate app key:
