@@ -17,6 +17,8 @@ yarn-error.log
 **/**/*.DS_Store
 /storage/app
 /storage/fonts
-/storage/framework
+/storage/cache/*
+/storage/sessions/*
+/storage/views/*
 /storage/logs
 php-cs-fixer
